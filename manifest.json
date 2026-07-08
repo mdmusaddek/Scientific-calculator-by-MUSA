@@ -1,0 +1,17 @@
+{
+  "name": "Sci. Calculator by MUSA",
+  "short_name": "MUSA's Calculator",
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#020617",
+  "theme_color": "#00e5ff",
+  "orientation": "portrait",
+
+  "icons": [
+    {
+      "src": "sci icon.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
