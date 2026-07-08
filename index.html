@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Scientific calculator by MUSA</title>
+
+    <link rel="stylesheet" href="index.css">
+
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json">
+
+    <meta name="theme-color" content="#050816">
+</head>
+
+
+<body>
+
+<div class="calculator">
+
+
+    <!-- Profile & Title -->
+
+    <div class="title-box">
+
+        <img src="prop.png" alt="MUSA" class="profile-pic">
+
+        <div>
+            <h2>Calculator by MUSA</h2>
+            <p class="subtitle">Scientific Edition</p><a href="https://mdmusaddek.github.io/MD.Musaddek/">More about the developer</a>
+        </div>
+
+    </div>
+<button class="theme-btn" onclick="toggleTheme()">
+    🌙 / ☀️ Theme
+</button>
+
+
+    <!-- Display -->
+
+    <div class="display">
+
+        <input type="text" id="screen" readonly>
+
+
+
+<!-- History -->
+<div class="history-box">
+
+    <h3>📜 History</h3>
+
+    <button class="clear-history" onclick="clearHistory()">
+        🗑️ Clear History
+    </button>
+
+    <div id="history"></div>
+
+</div>
+
+    <!-- Scientific Section -->
+
+    <div class="scientific-panel">
+
+        <button class="toggle-btn" onclick="toggleScientific()">
+            🔽 Scientific Tools
+        </button>
+
+
+        <div id="scientificButtons" class="scientific-buttons">
+
+
+            <button onclick="appendFunction('sin(')">sin</button>
+            <button onclick="appendFunction('cos(')">cos</button>
+            <button onclick="appendFunction('tan(')">tan</button>
+            <button onclick="appendFunction('log(')">log</button>
+
+
+            <button onclick="appendFunction('ln(')">ln</button>
+            
+            <button onclick="appendValue('(')">(</button>
+            <button onclick="appendValue(')')">)</button>
+
+
+            <button onclick="appendValue('PI')">π</button>
+            <button onclick="appendValue('E')">e</button>
+           <button onclick="square()">x²</button>
+<button onclick="cube()">x³</button>
+<button onclick="power()">xʸ</button>
+
+
+        </div>
+
+    </div>
+
+
+
+
+    <!-- Basic Calculator -->
+
+    <div class="buttons">
+
+
+        <button class="clear" onclick="clearScreen()">AC</button>
+
+        <button onclick="deleteLast()">⌫</button>
+
+        <button onclick="appendValue('%')">%</button>
+
+        <button class="operator" onclick="appendValue('/')">÷</button>
+
+
+
+        <button onclick="appendValue('7')">7</button>
+
+        <button onclick="appendValue('8')">8</button>
+
+        <button onclick="appendValue('9')">9</button>
+
+        <button class="operator" onclick="appendValue('*')">×</button>
+
+
+
+        <button onclick="appendValue('4')">4</button>
+
+        <button onclick="appendValue('5')">5</button>
+
+        <button onclick="appendValue('6')">6</button>
+
+        <button class="operator" onclick="appendValue('-')">−</button>
+
+
+
+        <button onclick="appendValue('1')">1</button>
+
+        <button onclick="appendValue('2')">2</button>
+
+        <button onclick="appendValue('3')">3</button>
+
+        <button class="operator" onclick="appendValue('+')">+</button>
+
+
+
+        <button onclick="appendValue('0')">0</button>
+
+        <button onclick="appendValue('.')">.</button>
+<button onclick="appendFunction('sqrt(')">√</button>
+        <button class="equal" onclick="calculate()">=</button>
+
+
+    </div>
+
+
+</div>
+
+
+
+<!-- Main JavaScript -->
+
+<script src="script.js"></script>
+
+
+
+<!-- Service Worker -->
+
+<script>
+
+let memory = 0;
+
+let historyList = JSON.parse(localStorage.getItem("musaHistory")) || [];
+if ("serviceWorker" in navigator) {
+
+    navigator.serviceWorker.register("service-worker.js")
+
+    .then(() => {
+
+        console.log("Service Worker Registered");
+
+    })
+
+    .catch(error => {
+
+        console.log("Service Worker Error:", error);
+
+    });
+
+}
+
+
+let screen = document.getElementById("screen");
+
+let powerMode = false;
+let powerBase = 0;
+// Display এ সংখ্যা/চিহ্ন যোগ করা
+
+function appendValue(value){
+
+    screen.value += value;
+
+}
+
+
+
+// Scientific Function যোগ করা
+
+function appendFunction(value){
+
+    screen.value += value;
+
+}
+
+
+
+// Clear
+
+function clearScreen(){
+
+    screen.value = "";
+
+}
+
+
+
+// Delete
+
+function deleteLast(){
+
+    screen.value =
+    screen.value.slice(0,-1);
+
+}
+
+
+
+// Scientific Panel Show/Hide
+
+function toggleScientific(){
+
+    let box =
+    document.getElementById("scientificButtons");
+
+    let btn =
+    document.querySelector(".toggle-btn");
+
+
+    if(box.style.display === "none"){
+
+        box.style.display="grid";
+
+        btn.innerHTML="🔽 Scientific Tools";
+
+    }
+
+    else{
+
+        box.style.display="none";
+
+        btn.innerHTML="🔼 Scientific Tools";
+
+    }
+
+}
+
+
+
+// Calculation Engine
+
+function calculate(){
+
+    try{
+
+
+        // xʸ Power Mode
+
+        if(powerMode){
+
+            let exponent = eval(screen.value);
+
+            let result = Math.pow(powerBase, exponent);
+
+
+            historyList.push(
+                powerBase + "^" + exponent + " = " + result
+            );
+
+            updateHistory();
+
+
+            screen.value = result;
+
+            powerMode = false;
+
+            return;
+
+        }
+
+
+
+        let expression = screen.value;
+
+
+
+        // Constants
+
+        expression = expression.replace(/PI/g, "Math.PI");
+
+        expression = expression.replace(/E/g, "Math.E");
+
+
+
+        // Square Root
+
+        expression = expression.replace(
+            /sqrt\(/g,
+            "Math.sqrt("
+        );
+
+
+
+        // Trigonometry
+
+        expression = expression.replace(
+            /sin\(/g,
+            "Math.sin((Math.PI/180)*"
+        );
+
+
+        expression = expression.replace(
+            /cos\(/g,
+            "Math.cos((Math.PI/180)*"
+        );
+
+
+        expression = expression.replace(
+            /tan\(/g,
+            "Math.tan((Math.PI/180)*"
+        );
+
+
+
+        // Log
+
+        expression = expression.replace(
+            /log\(/g,
+            "Math.log10("
+        );
+
+
+        expression = expression.replace(
+            /ln\(/g,
+            "Math.log("
+        );
+
+
+
+        let result = eval(expression);
+
+
+
+        // History Save
+
+        historyList.push(
+            expression + " = " + result
+        );
+
+        updateHistory();
+
+
+
+        screen.value = result;
+
+
+    }
+
+    catch(error){
+
+        screen.value="Error";
+
+    }
+
+}
+// Square (x²)
+
+function square(){
+
+    try{
+
+        let value = eval(screen.value);
+
+        screen.value = value * value;
+
+    }
+
+    catch(error){
+
+        screen.value = "Error";
+    
+    }
+
+}
+
+
+
+// Cube (x³)
+
+function cube(){
+
+    try{
+
+        let value = eval(screen.value);
+
+        screen.value = value * value * value;
+
+    }
+
+    catch(error){
+
+        screen.value = "Error";
+
+    }
+
+}
+// xʸ Power Function
+
+function power(){
+
+    try{
+
+        powerBase = eval(screen.value);
+
+        screen.value = "";
+
+        powerMode = true;
+
+    }
+
+    catch(error){
+
+        screen.value = "Error";
+
+    }
+
+}
+// Memory Plus
+
+function memoryAdd(){
+
+    let value = Number(screen.value);
+
+    memory += value;
+
+}
+
+
+// Memory Minus
+
+function memorySubtract(){
+
+    let value = Number(screen.value);
+
+    memory -= value;
+
+}
+
+
+// Memory Recall
+
+function memoryRecall(){
+
+    screen.value = memory;
+
+}
+
+
+// Memory Clear
+
+function memoryClear(){
+
+    memory = 0;
+
+}
+function updateHistory(){
+
+    let box = document.getElementById("history");
+
+    if(!box){
+        console.log("History box not found");
+        return;
+    }
+
+
+    box.innerHTML = "";
+localStorage.setItem(
+    "musaHistory",
+    JSON.stringify(historyList)
+);
+
+    historyList.slice(-10).reverse().forEach(item=>{
+
+        let p = document.createElement("p");
+
+        p.textContent = item;
+
+        box.appendChild(p);
+
+    });
+
+}
+window.onload = function(){
+
+    // Load History
+    updateHistory();
+
+
+    // Load Saved Theme
+    let savedTheme = localStorage.getItem("musaTheme");
+
+
+    if(savedTheme === "light"){
+
+        document.body.classList.add("light-mode");
+
+    }
+
+};
+;
+function clearHistory(){
+
+    historyList = [];
+
+    localStorage.removeItem("musaHistory");
+
+    updateHistory();
+
+}
+// Load Saved Theme
+
+window.onload = function(){
+
+    updateHistory();
+
+
+    let savedTheme = localStorage.getItem("musaTheme");
+
+    if(savedTheme === "light"){
+
+        document.body.classList.add("light-mode");
+
+    }
+
+};
+
+
+
+// Theme Change
+
+function toggleTheme(){
+
+    document.body.classList.toggle("light-mode");
+
+
+    if(document.body.classList.contains("light-mode")){
+
+        localStorage.setItem(
+            "musaTheme",
+            "light"
+        );
+
+    }
+
+    else{
+
+        localStorage.setItem(
+            "musaTheme",
+            "dark"
+        );
+
+    }
+
+}
+</script>
+</body
+  </html>
