@@ -10,7 +10,7 @@
   "icons": [
     {
       "src": "sci c icon.png",
-      "sizes": "960×960",
+      "sizes": "512×512",
       "type": "image/png"
     }
   ]
