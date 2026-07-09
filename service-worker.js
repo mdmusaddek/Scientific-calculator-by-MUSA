@@ -3,10 +3,9 @@ const cacheName = "musa-calculator-v2";
 const filesToCache = [
     "index.html",
     "style.css",
-    "script.js",
     "manifest.json",
     "profile.png",
-    "sci icon.png"
+    "sci c icon.png"
 ];
 
 
