@@ -29,7 +29,14 @@
 
         <div>
             <h2>Calculator by MUSA</h2>
-            <p class="subtitle">Scientific Edition</p><a href="https://mdmusaddek.github.io/md.musaddek/">More about the developer</a>
+            <p class="subtitle">Scientific Edition</p><button id="installBtn" style="display: none; padding: 10px 20px; background: #00e5ff; 
+    border: none; border-radius: 5px; cursor: pointer; font-weight: bold;">
+    📥 Install App
+</button>
+
+<div class="calculator">
+    <!-- ... বাকি calculator code ... -->
+</div><a href="https://mdmusaddek.github.io/md.musaddek/">More about the developer</a>
         </div>
 
     </div>
@@ -579,6 +586,48 @@ function toggleTheme(){
     }
 
 }
+    // PWA Install Prompt
+    let deferredPrompt;
+
+    window.addEventListener('beforeinstallprompt', (e) => {
+        // Prevent the mini-infobar from appearing on mobile
+        e.preventDefault();
+        // Stash the event for later use.
+        deferredPrompt = e;
+        
+        // Show your custom install button (optional)
+        showInstallButton();
+    });
+
+    function showInstallButton() {
+        const installBtn = document.getElementById('installBtn');
+        if (installBtn) {
+            installBtn.style.display = 'block';
+        }
+    }
+
+    // Install button click handler
+    document.getElementById('installBtn')?.addEventListener('click', async () => {
+        if (deferredPrompt) {
+            // Show the install prompt
+            deferredPrompt.prompt();
+            // Wait for the user to respond to the prompt
+            const { outcome } = await deferredPrompt.userChoice;
+            console.log(`User response to the install prompt: ${outcome}`);
+            // We've used the prompt, and can't use it again, throw it away
+            deferredPrompt = null;
+        }
+    });
+
+    // Detect when app is installed
+    window.addEventListener('appinstalled', () => {
+        console.log('App installed successfully');
+        // Hide the install button after installation
+        const installBtn = document.getElementById('installBtn');
+        if (installBtn) {
+            installBtn.style.display = 'none';
+        }
+    });
 </script>
 </body
   </html>
