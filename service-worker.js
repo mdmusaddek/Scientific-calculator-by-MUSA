@@ -1,10 +1,11 @@
-const cacheName = "musa-calculator-v2";
+const cacheName = "musa-calculator-v3";
 
 const filesToCache = [
     "index.html",
-    "style.css",
+    "index.css",
+    "script.js",
     "manifest.json",
-    "profile.png",
+    "prop.png",
     "sci c icon.png"
 ];
 
